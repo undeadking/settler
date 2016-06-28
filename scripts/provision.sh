@@ -206,25 +206,10 @@ service mysql restart
 
 mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --user=root --password=secret mysql
 
-# Install Postgres
-
-apt-get install -y postgresql-9.5 postgresql-contrib-9.5
-
-# Configure Postgres Remote Access
-
-sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/postgresql/9.5/main/postgresql.conf
-echo "host    all             all             10.0.2.2/32               md5" | tee -a /etc/postgresql/9.5/main/pg_hba.conf
-sudo -u postgres psql -c "CREATE ROLE homestead LOGIN UNENCRYPTED PASSWORD 'secret' SUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;"
-sudo -u postgres /usr/bin/createdb --echo --owner=homestead homestead
-service postgresql restart
-
-# Install Blackfire
-
-apt-get install -y blackfire-agent blackfire-php
 
 # Install A Few Other Things
 
-apt-get install -y redis-server memcached beanstalkd
+apt-get install -y memcached beanstalkd
 
 # Configure Beanstalkd
 
@@ -236,10 +221,3 @@ sed -i "s/#START=yes/START=yes/" /etc/default/beanstalkd
 /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024
 /sbin/mkswap /var/swap.1
 /sbin/swapon /var/swap.1
-
-# Minimize The Disk Image
-
-echo "Minimizing disk image..."
-dd if=/dev/zero of=/EMPTY bs=1M
-rm -f /EMPTY
-sync
